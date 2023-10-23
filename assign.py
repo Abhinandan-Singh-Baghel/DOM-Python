@@ -49,7 +49,7 @@ def compute_dom(sample, key_byte, inverse_sbox, freqSample, NPoint, NCipher, NKe
 
 # Parameters
 NSample = 10000  # Number of samples (rows) in the CSV file
-NPoint = 12     # Number of power consumption points after each round
+NPoint = 11    # Number of power consumption points after each round
 NCipher = 256    # Number of possible cipher values (256 for AES)
 NKey = 256       # Number of possible key values (256 for a byte)
 
