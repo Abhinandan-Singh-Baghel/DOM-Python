@@ -1,11 +1,18 @@
 from Crypto.Cipher import AES
 from binascii import hexlify, unhexlify
 
-# Given ciphertext pairs
-correct_ciphertext1 = "d8fdc9b896a929cb33df86b634e0dc04"
-correct_ciphertext2 = "aa5e77e2064d15e14babd14f5feafa77"
-faulty_ciphertext1 = "32622c1f5deed912b18a59996444273f"
-faulty_ciphertext2 = "b7565eced22c123b2d6e2fc9101d2315"
+# # Given ciphertext pairs
+# correct_ciphertext1 = "d8fdc9b896a929cb33df86b634e0dc04"
+# correct_ciphertext2 = "aa5e77e2064d15e14babd14f5feafa77"
+# faulty_ciphertext1 = "32622c1f5deed912b18a59996444273f"
+# faulty_ciphertext2 = "b7565eced22c123b2d6e2fc9101d2315"
+
+
+
+correct_ciphertext1 = "b21eeb73953e7a2771db222ecbeea788"
+correct_ciphertext2 = "0cabe3e9988d6666a96a39e7b659ca91"
+faulty_ciphertext1 =  "33cf60141fd2f121ff9a6126fefd03e6"
+faulty_ciphertext2 =  "92317b8a9e24f1960f37385a4085b0d5"
 
 # Convert hex strings to bytes
 correct_ct1_bytes = unhexlify(correct_ciphertext1)

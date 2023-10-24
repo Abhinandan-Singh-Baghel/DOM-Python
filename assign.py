@@ -7,11 +7,15 @@ def read_power_traces(filename):
     with open(filename, 'r') as csvfile:
         csvreader = csv.reader(csvfile)
         for row in csvreader:
-            plaintext = int(row[0])
-            ciphertext = int(row[1])
+            plaintext_hex = row[0]
+            # Convert hexadecimal plaintext to binary
+            plaintext_binary = bin(int(plaintext_hex, 16))[2:].zfill(8 * len(plaintext_hex))  # Convert to binary and pad with zeros
+            # Convert ciphertext to integer
+            ciphertext = int(row[1], 16)
             power_consumption = [float(value) for value in row[2:] if value]  # Skip empty strings
-            power_traces.append((plaintext, ciphertext, power_consumption))
+            power_traces.append((plaintext_binary, ciphertext, power_consumption))
     return power_traces
+
 
 def compute_dom(sample, key_byte, inverse_sbox, freqSample, NPoint, NCipher, NKey):
     biasKey = np.zeros(NKey)
@@ -25,11 +29,13 @@ def compute_dom(sample, key_byte, inverse_sbox, freqSample, NPoint, NCipher, NKe
         
         for i in range(len(sample)):
             plaintext, ciphertext, power_trace = sample[i]
-            partial_cipher = inverse_sbox[(ciphertext ^ key) % len(inverse_sbox)]
+             # Extract specific byte from ciphertext based on key_byte
+            byte_to_extract = (ciphertext >> (8 * ( 15 - key_byte ))) & 0xFF
+            partial_cipher = inverse_sbox[(byte_to_extract ^ key) % len(inverse_sbox)]
             
             # Check if power_trace has the expected length
             if len(power_trace) == NPoint:
-                if (partial_cipher >> key_byte) & 1:
+                if (partial_cipher) & 1:
                     sumBin1 += np.array(power_trace)
                     countBin1 += freqSample[i]
                 else:
@@ -80,7 +86,7 @@ inverse_sbox = [
 freqSample = np.ones(len(power_traces))
 
 # Perform DoM attack to recover 4th and 5th bytes of the key
-key_byte_4, key_byte_5 = 3, 4  # Assuming the 4th and 5th bytes of the key are being targeted
+key_byte_4, key_byte_5 = 3, 4 # Assuming the 4th and 5th bytes of the key are being targeted
 biasKey4, biasIndex4 = compute_dom(power_traces, key_byte_4, inverse_sbox, freqSample, NPoint, NCipher, NKey)
 biasKey5, biasIndex5 = compute_dom(power_traces, key_byte_5, inverse_sbox, freqSample, NPoint, NCipher, NKey)
 
@@ -90,3 +96,18 @@ recovered_key_byte_5 = np.argmax(biasKey5)
 
 print("Recovered 4th Byte of Key:", recovered_key_byte_4)
 print("Recovered 5th Byte of Key:", recovered_key_byte_5)
+
+
+# # Print the top N key candidates along with their biases
+# top_candidates = 10  # You can adjust this value based on your analysis
+# sorted_indices4 = np.argsort(biasKey4)[::-1][:top_candidates]
+# sorted_indices5 = np.argsort(biasKey5)[::-1][:top_candidates]
+
+# print("Top {} Recovered Candidates for 4th Byte of Key:".format(top_candidates))
+# for idx in sorted_indices4:
+#     print("Key Byte: {}, Bias: {}".format(idx, biasKey4[idx]))
+
+# print("Top {} Recovered Candidates for 5th Byte of Key:".format(top_candidates))
+# for idx in sorted_indices5:
+#     print("Key Byte: {}, Bias: {}".format(idx, biasKey5[idx]))
+
